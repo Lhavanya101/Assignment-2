@@ -1,0 +1,220 @@
+---
+title: "Practical Assignment"
+author: "Lhavanya"
+date: "6/5/2021"
+output: html_document
+-----
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Part 1: formatting RMarkdown document  
+
+## *Lhavanya Thananchayan*
+## **s4625955** 
+
+-----------------------------------------------------------------------
+
+# Assignment 2
+
+
+-----------------------------------------------------------------------
+
+![](123.JPG)
+
+
+
+```{r}
+library(tidyverse)
+library(skimr)
+```
+```{r}
+thanksgiving <- read.csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2018/2018-11-20/thanksgiving_meals.csv')
+```
+
+
+### Part 2: Data Wrangling and visualization 
+
+###1. Display the first 10 rows of the dataset using RMarkdown (1 marks)
+
+###install package
+```{r}
+###install.packages("kableExtra")
+library(kableExtra)
+###install.packages("janitor")
+
+library(janitor)
+library(tidyverse)
+library(datarium)
+
+
+
+
+```
+
+
+
+```{r}
+thanksgiving %>%
+  head(10) %>%
+  kbl()
+```
+###2. Use `fct_reorder` and `parse_number` functions to create a factor variable `family_income`
+
+```{r}
+#thanksgiving<-thanksgiving%>%
+#mutate(family_income=parse_number(family_income))%>%
+#mutate(family_income=as_factor(family_income))
+
+#class(thanksgiving$family_income)
+#levels(thanksgiving$family_income)
+#income_level<-c("0", "10000", "25000", "50000", "75000", "100000", "125000", "150000", "175000", "200000")
+thanksgiving%>%
+mutate(family_level=fct_reorder(family_income,parse_number(family_income)))
+
+class(thanksgiving$family_income)
+```
+###3. Generate the general statistics of the dataset using `summary()` and `skim()` function (2 mark).
+
+```{r}
+summary(thanksgiving)%>%
+  kbl(align = "c", caption = "summary")%>%
+  kable_styling(bootstrap_options = "striped")
+
+skim(thanksgiving)%>%
+  kbl(align = "c", caption = "skim")%>%
+  kable_styling(bootstrap_options = "striped")
+
+```
+
+###4. What is the number of people who celebrate?
+```{r}
+cel <-thanksgiving %>%
+  group_by(celebrate)%>%
+  summarise(Total=n())
+kable(cel)
+```
+
+
+###5. What are categories and stats for each main dish served and the method it is prepared?
+```{r}
+kable(thanksgiving%>%
+  count(main_dish, main_prep, sort = TRUE))
+```
+###6. Create a data viz showing this in the most evident way. Provide your own legend and use themes.
+
+```{r}
+library(datarium)
+thanksgiving%>%ggplot(
+  aes(
+    x=main_dish,
+    y=main_prep
+  ))+
+  geom_point()+
+  theme_light()+
+  guides(fill="colorbar")
+```
+
+
+
+
+###7. How many use cranberry sauce? How many use gravy?
+
+```{r}
+can<-thanksgiving%>%
+  group_by(cranberry)%>%
+  summarise(Total=n())
+  kable(can)
+  
+  grav<-thanksgiving%>%
+    group_by(gravy)%>%
+    summarise(Total=n())
+    kable(grav)
+  
+  
+```
+
+###8. What is the distribution of those who celebrate across income ranges
+
+```{r}
+thanksgiving%>%
+  count(family_income, celebrate, sort = FALSE)
+```
+
+
+###9. Present this information in the most evident way on the data viz.
+```{r}
+library(datarium)
+thanksgiving%>%ggplot(
+  aes(
+    x=family_income,
+    y=celebrate
+  ))+
+  geom_point()+
+  theme_light()+
+  guides(fill="colorbar")
+```
+
+
+
+###10. What are the most common pies, sides, and desserts?
+
+```{r}
+piesidedessert<-thanksgiving%>%
+select(starts_with("side"), starts_with("pie"), starts_with("dessert"))%>%
+select(-side15, -pie13, -dessert12)%>%
+gather(type, name)
+piesidedessert%>%
+count(type, name, sort=TRUE)
+```
+
+###11. Present this information on a data viz
+
+
+
+###13. How do the servings differ by income?
+```{r}
+kable(thanksgiving%>%
+  count(family_income, main_dish, sort = TRUE))
+kable(thanksgiving%>%
+        count(family_income, side1, sort=TRUE))
+kable(thanksgiving%>%
+        count(family_income, dessert1, sort=TRUE))
+```
+
+14. Present this information on a data viz
+
+```{r}
+library(datarium)
+thanksgiving%>%ggplot(
+  aes(
+    x=family_income,
+    y=main_dish
+  ))+
+  geom_point()+
+  theme_light()+
+  guides(fill="colorbar")
+```
+
+```{r}
+thanksgiving%>%ggplot(
+  aes(
+    x=family_income,
+    y=side1
+  ))+
+  geom_point()+
+  theme_light()+
+  guides(fill="colorbar")
+```
+
+
+
+
+
+
+#### Resources:
+
+RMarkdown tutorial https://rmarkdown.rstudio.com/lesson-1.html
+
+ggplot2: Elegant Graphics for Data Analysis https://ggplot2-book.org
